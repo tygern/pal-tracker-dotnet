@@ -29,6 +29,9 @@ namespace PalTracker
                 opts.SerializerSettings.ContractResolver =
                     new Newtonsoft.Json.Serialization.DefaultContractResolver();
             });
+            
+            services.Configure<Values>(Configuration);
+            services.Configure<CfInfo>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

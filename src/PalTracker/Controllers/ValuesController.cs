@@ -7,9 +7,9 @@ namespace PalTracker.Controllers
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        private readonly ValueOptions _options;
+        private readonly Values _options;
 
-        public ValuesController(IOptions<ValueOptions> options)
+        public ValuesController(IOptions<Values> options)
         {
             _options = options.Value;
         }

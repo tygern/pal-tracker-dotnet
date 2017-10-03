@@ -1,6 +1,6 @@
 ﻿namespace PalTracker
 {
-    public class ValueOptions
+    public class Values
     {
         public string FirstValue { get; set; }
         public string SecondValue { get; set; }
