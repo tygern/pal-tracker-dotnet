@@ -1,50 +1,31 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using PalTracker;
 using Xunit;
-using static System.Environment;
-using static System.IO.Path;
-using static Microsoft.Extensions.PlatformAbstractions.PlatformServices;
 
 namespace PalTrackerTests
 {
     [Collection("Integration")]
-    public class EnvIntegrationTest
+    public class EnvIntegrationTest : IntegrationTest
     {
-        private readonly string _contentRoot;
-
-        public EnvIntegrationTest()
+        protected override IDictionary<string, string> EnvironmentVariables => new Dictionary<string, string>
         {
-            _contentRoot = GetFullPath(
-                Combine(Default.Application.ApplicationBasePath, "..", "..", "..", "..", "..", "src", "PalTracker")
-            );
-        }
+            {"PORT", "123"},
+            {"MEMORY_LIMIT", "512M"},
+            {"CF_INSTANCE_INDEX", "1"},
+            {"CF_INSTANCE_ADDR", "127.0.0.1"}
+        };
 
         [Fact]
         public async Task ReturnsCfEnv()
         {
-            SetEnvironmentVariable("PORT", "123");
-            SetEnvironmentVariable("MEMORY_LIMIT", "512M");
-            SetEnvironmentVariable("CF_INSTANCE_INDEX", "1");
-            SetEnvironmentVariable("CF_INSTANCE_ADDR", "127.0.0.1");
-
-            var response = await Client().GetAsync("/env");
+            var response = await TestHttpClient.GetAsync("/env");
             response.EnsureSuccessStatusCode();
 
-            var expectedResponse = @"{""PORT"":""123"",""MEMORY_LIMIT"":""512M"",""CF_INSTANCE_INDEX"":""1"",""CF_INSTANCE_ADDR"":""127.0.0.1""}";
+            var expectedResponse =
+                @"{""PORT"":""123"",""MEMORY_LIMIT"":""512M"",""CF_INSTANCE_INDEX"":""1"",""CF_INSTANCE_ADDR"":""127.0.0.1""}";
             var actualResponse = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(expectedResponse, actualResponse);
         }
-
-        private HttpClient Client() => TestServer().CreateClient();
-
-        private TestServer TestServer() => new TestServer(
-            new WebHostBuilder()
-                .UseContentRoot(_contentRoot)
-                .UseStartup<Startup>()
-        );
     }
 }
