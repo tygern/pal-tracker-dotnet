@@ -32,6 +32,9 @@ namespace PalTracker
             
             services.Configure<Values>(Configuration);
             services.Configure<CfInfo>(Configuration);
+            
+            services.AddSingleton<ITimeEntryRepository, InMemoryTimeEntryRepository>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
