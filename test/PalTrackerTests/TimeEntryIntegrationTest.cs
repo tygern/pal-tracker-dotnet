@@ -1,14 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Newtonsoft.Json.Linq;
 using PalTracker;
 using Xunit;
+using static PalTrackerTests.DbTestSupport;
 
 namespace PalTrackerTests
 {
     [Collection("Integration")]
     public class TimeEntryIntegrationTest : IntegrationTest
     {
+        protected override IDictionary<string, string> EnvironmentVariables => new Dictionary<string, string>
+        {
+            {"VCAP_SERVICES", TestDbVcapJson}
+        };
+
+        public TimeEntryIntegrationTest()
+        {
+            ExecuteSql("TRUNCATE TABLE time_entries");
+        }
+
         [Fact]
         public void Read()
         {
@@ -71,16 +83,16 @@ namespace PalTrackerTests
             var id = CreateTimeEntry(new TimeEntry(222, 333, Convert.ToDateTime("01/08/2008"), 24));
             var updated = new TimeEntry(999, 888, Convert.ToDateTime("08/12/2012"), 2);
 
-            var putResponse = TestHttpClient.PutAsync($"/time-entries/{id}", SerializePayload(updated)).Result;            
+            var putResponse = TestHttpClient.PutAsync($"/time-entries/{id}", SerializePayload(updated)).Result;
             var getResponse = TestHttpClient.GetAsync($"/time-entries/{id}").Result;
             var getAllResponse = TestHttpClient.GetAsync("/time-entries").Result;
-            
+
             Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
             Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
             Assert.Equal(HttpStatusCode.OK, getAllResponse.StatusCode);
-            
+
             var getAllResponseBody = JArray.Parse(getAllResponse.Content.ReadAsStringAsync().Result);
-            
+
             Assert.Equal(1, getAllResponseBody.Count);
             Assert.Equal(id, getAllResponseBody[0]["Id"].ToObject<int>());
             Assert.Equal(999, getAllResponseBody[0]["ProjectId"].ToObject<long>());
@@ -89,7 +101,7 @@ namespace PalTrackerTests
             Assert.Equal(2, getAllResponseBody[0]["Hours"].ToObject<int>());
 
             var getResponseBody = JObject.Parse(getResponse.Content.ReadAsStringAsync().Result);
-            
+
             Assert.Equal(id, getResponseBody["Id"].ToObject<int>());
             Assert.Equal(999, getResponseBody["ProjectId"].ToObject<long>());
             Assert.Equal(888, getResponseBody["UserId"].ToObject<long>());
@@ -121,6 +133,5 @@ namespace PalTrackerTests
 
             return responseBody["Id"].ToObject<long>();
         }
-
     }
 }
