@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PalTracker.Data;
+using Steeltoe.CloudFoundry.Connector.MySql.EFCore;
+using Steeltoe.Extensions.Configuration;
 
 namespace PalTracker
 {
@@ -14,7 +17,8 @@ namespace PalTracker
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+                .AddEnvironmentVariables()
+                .AddCloudFoundry();
             Configuration = builder.Build();
         }
 
@@ -33,8 +37,9 @@ namespace PalTracker
             services.Configure<Values>(Configuration);
             services.Configure<CfInfo>(Configuration);
             
-            services.AddSingleton<ITimeEntryRepository, InMemoryTimeEntryRepository>();
-
+            services.AddScoped<ITimeEntryRepository, MySqlTimeEntryRepository>();
+            services.AddDbContext<PalTrackerContext>(options =>
+                options.UseMySql(Configuration));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

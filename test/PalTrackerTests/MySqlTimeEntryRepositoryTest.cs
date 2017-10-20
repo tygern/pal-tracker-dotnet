@@ -19,7 +19,7 @@ namespace PalTrackerTests
             ExecuteSql("TRUNCATE TABLE time_entries");
             
             var builder = new DbContextOptionsBuilder<PalTrackerContext>()
-                .UseMySQL(TestDbConnectionString);
+                .UseMySql(TestDbConnectionString);
 
             _repository = new MySqlTimeEntryRepository(new PalTrackerContext(builder.Options));
         }
