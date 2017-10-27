@@ -22,7 +22,7 @@ namespace PalTrackerTests
             response.EnsureSuccessStatusCode();
 
             var expectedResponse =
-                @"{""port"":""123"",""memory_limit"":""512M"",""cf_instance_index"":""1"",""cf_instance_addr"":""127.0.0.1""}";
+                @"{""port"":""123"",""memoryLimit"":""512M"",""cfInstanceIndex"":""1"",""cfInstanceAddr"":""127.0.0.1""}";
             var actualResponse = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(expectedResponse, actualResponse);
