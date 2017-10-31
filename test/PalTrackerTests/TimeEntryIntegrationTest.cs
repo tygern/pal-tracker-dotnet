@@ -1,18 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using PalTracker;
 using Xunit;
+using static PalTrackerTests.DbTestSupport;
 
 namespace PalTrackerTests
 {
     [Collection("Integration")]
     public class TimeEntryIntegrationTest : IntegrationTest
     {
+        
+        protected override IDictionary<string, string> EnvironmentVariables => new Dictionary<string, string>
+        {
+            {"VCAP_SERVICES", TestDbVcapJson}
+        };
+
+        public TimeEntryIntegrationTest()
+        {
+            ExecuteSql("TRUNCATE TABLE time_entries");
+        }
+        
         [Fact]
         public void Read()
         {
